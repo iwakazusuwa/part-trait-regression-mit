@@ -24,7 +24,7 @@
 ## フォルダ構成
 ```
 ├─ 1_flow/
-│   └─ corres_analysis.py       # 実行用スクリプト
+│   └─ part-trait-regression.py       # 実行用スクリプト
 ├─ 2_data/
 │   └─ area_image.csv           # 入力データ
 ├─ 3_output/                    # データ出力先（スクリプト実行時に自動作成）
