@@ -240,25 +240,32 @@ with PdfPages(save_pdf_pl) as pdf:
         car = df_merge['Car'].iloc[0]
         # 散布図
         ax = axes[0, idx]
-        scatter = ax.scatter(df_merge["Coef"], df_merge["logP"], c=df_merge["Coef"],
-                             cmap="coolwarm", edgecolor="k", s=80)
+        # 正のCoefは赤、負のCoefは青、濃淡＝logP
+        norm = mcolors.TwoSlopeNorm(vmin=df_merge['Coef'].min(),
+                                    vcenter=0,
+                                    vmax=df_merge['Coef'].max())
+        scatter = ax.scatter(df_merge["Coef"], df_merge["logP"],
+                             c=df_merge["Coef"], cmap="RdBu_r", norm=norm, s=80, edgecolor='k')
         ax.axhline(-np.log10(0.05), color='gray', linestyle='--')
         ax.axvline(0, color='black', linewidth=1)
-        ax.set_xlabel("回帰係数")
-        ax.set_ylabel("-log10(P値)")
-        ax.set_title(f"{car}：パーツの影響と信頼性")
+        ax.set_xlabel("回帰係数", fontsize=12)
+        ax.set_ylabel("-log10(P値)", fontsize=12)
+        ax.set_title(f"{car}：パーツの影響と信頼性", fontsize=14)
         for _, row in df_merge.iterrows():
-            ax.text(row["Coef"], row["logP"], f'{row["Part"]}\n({row["Trait"]})', fontsize=8, ha='right')
-        fig.colorbar(scatter, ax=ax, label="回帰係数")
+            ax.text(row["Coef"], row["logP"], f'{row["Part"]}\n({row["Trait"]})',
+                    fontsize=10, ha='right')
 
-        # 棒グラフ
+        # ---- 棒グラフ ----
         ax = axes[1, idx]
-        ax.barh(df_merge['Label'], df_merge['Coef'],
-                color=plt.cm.RdBu_r((df_merge['logP']/df_merge['logP'].max()).values),
-                edgecolor='black')
+        # logP を 0-1 に正規化
+        norm_logp = df_merge['logP'] / df_merge['logP'].max()        
+        # Coef の符号ごとに色を割り当て
+        colors_bar = [plt.cm.Reds(v) if c > 0 else plt.cm.Blues(v) for c, v in zip(df_merge['Coef'], norm_logp)]
+        ax.barh(df_merge['Label'], df_merge['Coef'], color=colors_bar, edgecolor='black')
         ax.axvline(0, color='black', linewidth=0.8)
-        ax.set_xlabel("回帰係数")
-        ax.set_title(f"{car}：パーツごとの回帰係数（色＝有意性）")
+        ax.set_xlabel("回帰係数", fontsize=12)
+        ax.set_title(f"{car}：パーツごとの回帰係数（色＝有意性）", fontsize=14)
+
     plt.tight_layout()
     pdf.savefig(fig, bbox_inches='tight')
     plt.close()
