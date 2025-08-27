@@ -24,7 +24,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import japanize_matplotlib
 from matplotlib.backends.backend_pdf import PdfPages
-
+import matplotlib.colors as mcolors
 # =========================
 # ディレクトリ・ファイル設定
 # =========================
